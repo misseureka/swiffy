@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title></title>
+  <style>
+    body {
+      padding-left: 20px;
+      font-family: Tahoma;
+      font-size: 15px;
+    }
+
+    .group{
+      height: 30px;
+      line-height: 30px;
+      padding: 5  px 0;
+      display: block;
+    }
+    .group:first-child{
+      margin-top: 10px;
+    }
+
+    .group *{      
+      padding: 3px 5px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .group #dbmPage{
+      display: none;
+    }
+
+    input[type=submit]{
+      padding: 5px 10px;
+      margin-top: 10px;
+    }
+    
+    #error{
+      color: red;      
+    }
+  </style>
+  <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+</head>
+<body>
+  <h2>Convert swf to html5</h2>
+  <form id="upload-form" enctype="multipart/form-data" method="post">
+    <input type="file" multiple="multiple" required="required" title="PLease, choose a file" accept="application/x-shockwave-flash" name="banners[]" /><br />
+    <div class="group"><input type="checkbox" name="wrapped" id="yandex" /><label for="yandex">SSP Yandex</label></div>
+    <div class="group"><input type="checkbox" name="wrapped" id="google" /><label for="google">SSP Google</label></div>
+    <div class="group"><input type="checkbox" name="wrapped" id="dbm" /><label for="dbm">DBM</label> <input type="text" placeholder="target page address" id="dbmPage"></div>
+    <input type="submit" value="Upload and Convert" />
+  </form>
+  <p id="status"></p>
+  <p id="error"></p>
+
+  <script>
+    $( document ).ready( function () {
+
+      $('#dbm').change(function() {        
+         $('#dbmPage').toggle();
+      });
+
+      $( '#upload-form' ).on( 'submit', function ( e ) {
+        e.preventDefault();
+        if (!$( '#yandex' )[0].checked  && !$( '#google' )[0].checked && !$( '#dbm' )[0].checked){
+          $( '#error' ).html( 'Please, choose type of converting' );
+          return;
+        }
+        if($( '#dbm' )[0].checked && $('#dbmPage').val().trim() == ''){
+          $( '#error' ).html( 'Please, enter target page address for DBM' );
+          return;
+        }
+        $( '#upload-form input[type=submit]' ).attr( 'disabled', 'disabled' );
+        $( '#status' ).html( 'Uploading...' );
+        $( '#error' ).html( '' );
+        var files = $( '#upload-form input[type="file"]' )[0].files;
+        var formData = new FormData();
+        for ( var i = 0; i < files.length; i++ ) {
+          var file = files[i];
+          var ext = file.name.split( '.' ).pop().toLowerCase();
+          if ( ext != 'swf' ) {
+            continue;
+          }
+          formData.append( 'banners[]', file, file.name );
+        }
+        var rnd = '' + Math.floor(( Math.random() * 1000 ) + 1 ) + Date.now();
+        var reqParam = '?rnd=' + rnd + '&yandex=' + $( '#yandex' )[0].checked + '&google=' + $( '#google' )[0].checked + '&dbm=' + $( '#dbm' )[0].checked;
+        if($( '#dbm' )[0].checked){
+          reqParam += '&dbmPage=' + encodeURIComponent($('#dbmPage').val().trim());
+        }
+        $.ajax( {
+          method: "POST",
+          url: document.location.pathname + 'upload' + reqParam,
+          data: formData,
+          dataType: 'json',
+          processData: false,
+          contentType: false
+        } )
+        .success( function ( msg ) {
+          if ( msg.link ) {            
+            $( '#status' ).html( '<a href="' + document.location.href + msg.link  + '" target="_blank">'+ msg.link  + '</a>');
+          }
+          else{
+            $('#status').html('Done');
+	  }
+          if ( msg.error ) {
+            $( '#error' ).html( msg.error );
+          }
+        } )
+        .error( function ( msg ) {
+          $( '#status' ).html( msg.responseText );
+        } )
+        .complete( function () {
+          $( '#upload-form input[type=submit]' ).removeAttr( 'disabled' );
+        } )
+      } );
+    } );
+  </script>
+</body>
+</html>

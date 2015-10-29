@@ -1,0 +1,11 @@
+{
+  "name": "Converter",
+  "version": "0.0.1",
+  "dependencies": {
+    "easy-zip": "0.0.4",
+    "express": "~4.13.3",
+    "jszip": "2.5.0",
+    "multer": "~1.0.3",
+    "swiffy-convert": "1.2.1"
+  }
+}

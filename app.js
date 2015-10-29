@@ -69,6 +69,9 @@ app.post( '/upload', function ( req, res ) {
 
     if ( isYandex ) {
       req.files.forEach( function ( file, i ) {
+        if(file.size == 0){
+          return;
+        }
         var fileName = file.filename.slice( 0, -4 ),
           filePath = file.path;
         convFns['yandex_' + fileName] = function ( callbackToNextConvert ) {
@@ -87,6 +90,9 @@ app.post( '/upload', function ( req, res ) {
 
     if ( isGoogle ) {
       req.files.forEach( function ( file, i ) {
+        if(file.size == 0){
+          return;
+        }
         var fileName = file.filename.slice( 0, -4 ),
           filePath = file.path;
         convFns['google_' + fileName] = function ( callbackToNextConvert ) {
@@ -108,6 +114,9 @@ app.post( '/upload', function ( req, res ) {
     if ( isDBM ) {
       var dbmPage = decodeURIComponent( req.query.dbmPage );
       req.files.forEach( function ( file, i ) {
+        if(file.size == 0){
+          return;
+        }
         var fileName = file.filename.slice( 0, -4 ),
           filePath = file.path;
         convFns['dbm_' + fileName] = function ( callbackToNextConvert ) {
